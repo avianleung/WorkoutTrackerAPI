@@ -5,7 +5,7 @@ module.exports = app => {
 
     app.post("/exercises/add", controller.addExercise)
 
-    app.delete("/exercises/:exerciseId", controller.deleteExercise)
+    app.delete("/exercises/delete/:exerciseId", controller.deleteExercise)
 
     app.get("/log/all", controller.allLogs)
 

@@ -1,5 +1,4 @@
 const sql = require("./db.js");
-const connection = require("./db.js");
 
 const Exercise = {};
 
@@ -39,12 +38,12 @@ Exercise.addExercise = (data, result) => {
                   (err, res) => {
                     if (err) {
                       return conn.rollback(function () {
-                        throw error;
+                        throw err;
                       });
                     }
                     conn.commit(function (err) {
                       if (err) {
-                        return connection.rollback(function () {
+                        return conn.rollback(function () {
                           throw err;
                         });
                       }
@@ -60,5 +59,39 @@ Exercise.addExercise = (data, result) => {
     });
   });
 };
+
+Exercise.deleteExercise = (id, result) => {
+  sql.getConnection(function(err, conn) {
+    conn.beginTransaction(function (err) {
+      if (err) {
+        throw err;
+      } else {
+        conn.query(`DELETE FROM exercises WHERE id=?`, id, (err, res) => {
+          if (err) {
+            return conn.rollback(function () {
+              throw err;
+            })
+          } else {
+            conn.query(`DELETE FROM muscle_groups WHERE exercise_id=?`, id, (err, res) => {
+              if (err) {
+                return conn.rollback(function() {
+                  throw err;
+                })
+              }
+              conn.commit(function(err) {
+                if (err) {
+                  return conn.rollback(function() {
+                    throw err;
+                  })
+                }
+                result(null, "deleted")
+              })
+            })
+          }
+        })
+      }
+    })
+  })
+}
 
 module.exports = Exercise;
